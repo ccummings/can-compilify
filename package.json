@@ -1,0 +1,26 @@
+{
+  "name": "can-compilify",
+  "version": "0.0.1-pre",
+  "description": "CanJS template precompiler for Browserify",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ccummings/can-compilify"
+  },
+  "keywords": [
+    "canjs",
+    "ejs",
+    "mustache",
+    "stache",
+    "browserify",
+    "transform",
+    "browserify-transform"
+  ],
+  "author": "Curtis Cummings",
+  "license": "MIT",
+  "dependencies": {
+    "through": "~2.3.4",
+    "xtend": "~3.0.0",
+    "can-compile": "^0.7.0"
+  }
+}
