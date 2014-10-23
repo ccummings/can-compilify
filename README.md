@@ -20,13 +20,13 @@ You will also need CanJS installed:
     //OR
     bower install canjs
 
-> CanJS is not compatible with CommonJS so additional configuration is required to make Browserify work with CanJS. Examples are provided below.
+> CanJS is not compatible with CommonJS so additional configuration is required to make it work with Browserify.
 
 Then use it as Browserify transform module with `-t`:
 
     browserify -t can-compilify app.js > app.bundle.js
 
-where main.js can be like:
+where app.js can be like:
 
 ```javascript
 var template = require('./template.stache');
@@ -45,19 +45,19 @@ and template.stache:
 
 You can specify the CanJS version used to precompile templates using `-v` or `--version`:
 
-    browserify -t [ can-compilify -v 2.1.0 ] main.js > bundle.js
+    browserify -t [ can-compilify -v 2.1.0 ] app.js > app.bundle.js
 
-By default the precompiler is `2.1.3`.
+By default the version is `2.1.3`.
 
 ### Paths
 
 Depending on how you configure browserify, you may need to specify the paths for CanJS and its view plugins. You can do this using `--can-path`, `--ejs-path`, `--mustache-path` and `--stache-path`.
 
-    browserify -t [ can-compilify -v 2.1.0 ] main.js > bundle.js
+    browserify -t [ can-compilify --can-path path/to/can/canjs.js --stache-path path/to/can/stache.js ] app.js > app.bundle.js
 
 ## package.json
 
-Transform can be configured from the package.json too.
+The transform can be configured from the package.json too.
 
 ```json
 {
@@ -86,16 +86,16 @@ var compilify = require("can-compilify").configure({
 });
 
 var browserify = require("browserify");
-var b = browserify("./main.js");
+var b = browserify("./app.js");
 b.transform(compilify);
-b.bundle().pipe(fs.createWriteStream("./bundle.js"));
+b.bundle().pipe(fs.createWriteStream("./app.bundle.js"));
 ```
 
 ## Examples of Configuring CanJS with Browserify
 
 ### browser and browserify-shim
 
-This will work with the stand-alone distributable of CanJS.
+This will work with the stand-alone distribution of CanJS.
 
 In package.json:
 
