@@ -19,8 +19,8 @@
   "author": "Curtis Cummings",
   "license": "MIT",
   "dependencies": {
+    "can-compile": "ccummings/can-compile#a10b8e23c2ebef1243101e5beff297f1b91e48d1",
     "through": "~2.3.4",
-    "xtend": "~3.0.0",
-    "can-compile": "^0.7.0"
+    "xtend": "~3.0.0"
   }
 }

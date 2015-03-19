@@ -3,18 +3,20 @@ var xtend = require('xtend');
 var compiler = require('can-compile');
 var path = require('path');
 
+var requirePaths = {
+    'jquery': 'jquery',
+    'can': 'can',
+    'ejs': 'can/view/ejs/ejs',
+    'stache': 'can/view/stache/stache',
+    'mustache': 'can/view/mustache/mustache'
+};
+
 var defaults = {
-    paths: {
-        'can': 'canjs',
-        '.ejs': 'canjs/ejs.js',
-        '.stache': 'canjs/stache.js',
-        '.mustache': 'canjs/mustache.js'
-    },
     options: {
         normalizer: function(filename) {
             return path.relative(__dirname, filename);
         },
-        version: '2.1.3'
+        version: '2.2.0'
     }
 };
 
@@ -24,65 +26,49 @@ function isTemplate(file) {
     return templateRe.test(file);
 }
 
-function generateRequires(paths, ext) {
+function generateRequires(paths, type) {
     var requires = ['var can = require(\'' + paths.can + '\');\n'];
-    if(paths[ext]) {
-        requires.push('require(\'' + paths[ext] + '\');\n');
+    if(paths[type]) {
+        requires.push('require(\'' + paths[type] + '\');\n');
     }
     return requires.join('');
 }
 
-function parseVersion(version) {
-    var parts = version.split('.');
-    return {
-        major: parseInt(parts[0], 10),
-        minor: parseInt(parts[1], 10),
-        patch: parseInt(parts[2], 10) || 0
-    };
-}
-
 function compile(file, opts) {
     var config = {};
-    var requirePaths = {};
 
     if(!isTemplate(file)) {
         return through();
     }
 
-    var ext = path.extname(file);
+    var type = path.extname(file).slice(1);
 
     // Grab config and paths from provided options.
     if(opts) {
         config.normalizer = opts.normalizer || defaults.options.normalizer;
         config.version = opts.v || opts.version || defaults.options.version;
 
-        requirePaths.can = opts['can-path'] || defaults.paths.can;
-        requirePaths['.ejs'] = opts['ejs-path'] || defaults.paths['.ejs'];
-        requirePaths['.stache'] = opts['stache-path'] || defaults.paths['.stache'];
-        requirePaths['.mustache'] = opts['mustache-path'] || defaults.paths['.mustache'];
+        if(opts['jquery-path'] || opts['can-path'] || opts['ejs-path'] || opts['stache-path'] || opts['mustache-path']) {
+            config.paths = {};
+            if(opts['jquery-path']){
+                config.paths.jquery = opts['jquery-path'];
+            }
+            if(opts['can-path']){
+                config.paths.can = opts['can-path'];
+            }
+            if(opts['ejs-path']){
+                config.paths.ejs = opts['ejs-path'];
+            }
+            if(opts['stache-path']){
+                config.paths.stache = opts['stache-path'];
+            }
+            if(opts['mustache-path']){
+                config.paths.mustache = opts['mustache-path'];
+            }
+        }
     }
 
-    // Check that the type of template is supported by the provided version.
-    // We also remove entries in requirePaths when the template compiler is in CanJS.
-    var version = parseVersion(config.version);
-    if(version.major <= 1) {
-        if(ext === '.stache') {
-            throw '.stache templates are not supported by CanJS until v2.1.0 (Your version: ' + config.version + ')';
-        }
-        if(version.minor < 1 && ext === '.mustache') {
-            throw '.mustache templates are not supported by CanJS until v1.1.0 (Your version: ' + config.version + ')';
-        }
-        // EJS is included in CanJS until 2.x
-        delete requirePaths['.ejs'];
-    } else if(version.major === 2) {
-        if(version.minor < 1 && ext === '.stache') {
-            throw '.stache templates are not supported by CanJS until v2.1.0 (Your version: ' + config.version + ')';
-        }
-        // Mustache is included in CanJS 2.x
-        delete requirePaths['.mustache'];
-    }
-
-    config.wrapper = generateRequires(requirePaths, ext) + 'module.exports={{{content}}}';
+    config.wrapper = generateRequires(requirePaths, type) + 'module.exports={{{content}}}';
 
     var buffer = "";
     return through(function(chunk){
