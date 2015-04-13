@@ -1,80 +1,48 @@
 var through = require('through');
-var xtend = require('xtend');
 var compiler = require('can-compile');
 var path = require('path');
-
-var requirePaths = {
-    'jquery': 'jquery',
-    'can': 'can',
-    'ejs': 'can/view/ejs/ejs',
-    'stache': 'can/view/stache/stache',
-    'mustache': 'can/view/mustache/mustache'
-};
-
-var defaults = {
-    options: {
-        normalizer: function(filename) {
-            return path.relative(__dirname, filename);
-        },
-        version: '2.2.0'
-    }
-};
+var xtend = require('xtend');
+var generateRequires = require('./lib/generateRequires');
 
 var templateRe = /\.(mustache|ejs|stache)$/;
+
+var defaults = {
+    normalizer: function(filename) {
+        return path.relative(__dirname, filename);
+    },
+    version: '2.2.4',
+    requirePaths: {
+        'jquery': 'jquery',
+        'can': 'can',
+        'ejs': 'can/view/ejs/ejs',
+        'stache': 'can/view/stache/stache',
+        'mustache': 'can/view/mustache/mustache'
+    }
+};
 
 function isTemplate(file) {
     return templateRe.test(file);
 }
 
-function generateRequires(paths, type) {
-    var requires = ['var can = require(\'' + paths.can + '\');\n'];
-    if(paths[type]) {
-        requires.push('require(\'' + paths[type] + '\');\n');
-    }
-    return requires.join('');
-}
-
-function compile(file, opts) {
-    var config = {};
-
+function compile(file, options) {
     if(!isTemplate(file)) {
         return through();
     }
 
     var type = path.extname(file).slice(1);
-
-    // Grab config and paths from provided options.
-    if(opts) {
-        config.normalizer = opts.normalizer || defaults.options.normalizer;
-        config.version = opts.v || opts.version || defaults.options.version;
-
-        if(opts['jquery-path'] || opts['can-path'] || opts['ejs-path'] || opts['stache-path'] || opts['mustache-path']) {
-            config.paths = {};
-            if(opts['jquery-path']){
-                config.paths.jquery = opts['jquery-path'];
-            }
-            if(opts['can-path']){
-                config.paths.can = opts['can-path'];
-            }
-            if(opts['ejs-path']){
-                config.paths.ejs = opts['ejs-path'];
-            }
-            if(opts['stache-path']){
-                config.paths.stache = opts['stache-path'];
-            }
-            if(opts['mustache-path']){
-                config.paths.mustache = opts['mustache-path'];
-            }
-        }
-    }
-
-    config.wrapper = generateRequires(requirePaths, type) + 'module.exports={{{content}}}';
+    var config = xtend({}, defaults, options);
+    var compilerConfig = {
+        paths: config.paths,
+        normalizer: config.normalizer,
+        version: config.version,
+        wrapper: generateRequires(config.version, type, config.requirePaths) + 'module.exports={{{content}}}'
+    };
 
     var buffer = "";
     return through(function(chunk){
         buffer += chunk.toString();
     }, function() {
-        compiler([file], config, function(err, output){
+        compiler([file], compilerConfig, function(err, output){
             if(err) {
                 this.emit('error', err);
                 return;

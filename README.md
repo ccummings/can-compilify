@@ -6,58 +6,24 @@
 
 Compiles CanJS Stache, Mustache and EJS templates into JavaScript using the very awesome [can-compile](https://github.com/daffl/can-compile).
 
-__This is a very early pre-release of this transform. Not recommended for production apps.__
-
 ## Usage
 
 Install can-compilify locally:
 
     npm install can-compilify
-
-You will also need CanJS installed:
-
-    npm install canjs
-    //OR
-    bower install canjs
-
-> CanJS is not compatible with CommonJS so additional configuration is required to make it work with Browserify.
-
-Then use it as Browserify transform module with `-t`:
-
-    browserify -t can-compilify app.js > app.bundle.js
-
-where app.js can be like:
+    
+Then require templates in your app:
 
 ```javascript
 var template = require('./template.stache');
 document.body.innerHTML = template({greeting: 'Hello'});
 ```
 
-and template.stache:
+And use can-compilify from the command line:
 
-```html
-<h1>{{greeting}} World!</h1>
-```
+    browserify -t can-compilify app.js > app.bundle.js
 
-## Options
-
-### CanJS Version
-
-You can specify the CanJS version used to precompile templates using `-v` or `--version`:
-
-    browserify -t [ can-compilify -v 2.1.0 ] app.js > app.bundle.js
-
-By default the version is `2.1.3`.
-
-### Paths
-
-Depending on how you configure browserify, you may need to specify the paths for CanJS and its view plugins. You can do this using `--can-path`, `--ejs-path`, `--mustache-path` and `--stache-path`.
-
-    browserify -t [ can-compilify --can-path path/to/can/canjs.js --stache-path path/to/can/stache.js ] app.js > app.bundle.js
-
-## package.json
-
-The transform can be configured from the package.json too.
+Or add it to your package.json:
 
 ```json
 {
@@ -67,13 +33,51 @@ The transform can be configured from the package.json too.
         "can-compilify",
         {
           "version": "2.1.3",
-          "can-path": "path/to/can"
         }
       ]
     ]
   }
 }
 ```
+
+Or programmatically:
+
+```js
+var compilify = require('can-compilify');
+bundler.transform(compilify);
+```
+
+can-compilify outputs a precompiled template with the require statements needed to render the template.
+
+With template.stache:
+
+```html
+<h1>{{greeting}} World!</h1>
+```
+
+The compipled template would be:
+
+```js
+var can = require('can');
+require('can/view/stache/stache');
+module.exports = can.stache('<h1>{{greeting}} World!</h1>');
+```
+
+## Options
+
+- `version` {String} the CanJS version to be used. Default is `'2.2.4'`.
+> Also available as -v on the command line
+- `paths` {Object} The paths to jQuery, CanJS and view plugins.
+	- `jquery` {String} path to jquery.
+	- `can` {String} path to can.
+	- `ejs` {String} path to ejs.
+	- `mustache` {String} path to mustache.
+	- `stache` {String} path to stache.
+- `requirePaths` {Object} The path for the require statements.
+	- `can` {String} path to can. Default is `'can'`.
+	- `ejs` {String} path to ejs. Default is `'can/view/ejs/ejs'`.
+	- `mustache` {String} path to mustache. Default is `'can/view/mustache/mustache'`.
+	- `stache` {String} path to stache. Default is `'can/view/stache/stache'`.
 
 ## Programmatic usage
 
@@ -91,44 +95,8 @@ b.transform(compilify);
 b.bundle().pipe(fs.createWriteStream("./app.bundle.js"));
 ```
 
-## Examples of Configuring CanJS with Browserify
-
-### browser and browserify-shim
-
-This will work with the stand-alone distribution of CanJS.
-
-In package.json:
-
-```
-{
-  "browser": {
-    "canjs": "./path/to/can.jquery.js",
-    "canjs/stache.js": "./path/to/can.stache.js",
-  },
-  "browserify-shim": {
-    "canjs": {
-      exports: "can",
-      "depends": "jquery:jQuery"
-    },
-    "canjs/stache.js": {
-      "depends": "canjs:can"
-    }
-  },
-  "browserify": {
-    "transform": [
-      "browserify-shim",
-      "can-compilify"
-    ]
-  }
-}
-```
-
-### [deamdify](https://github.com/jaredhanson/deamdify)
-
-For use with the AMD distribution.
-
-### [destealify](https://github.com/sykopomp/destealify)
-
-For use with the Steal distribution or the source from GitHub.
-
 ## Changelog
+
+__0.0.1:__
+
+- Initial release

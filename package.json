@@ -1,6 +1,6 @@
 {
   "name": "can-compilify",
-  "version": "0.0.1-pre",
+  "version": "0.0.1",
   "description": "CanJS template precompiler for Browserify",
   "main": "index.js",
   "repository": {
@@ -19,8 +19,14 @@
   "author": "Curtis Cummings",
   "license": "MIT",
   "dependencies": {
-    "can-compile": "ccummings/can-compile#a10b8e23c2ebef1243101e5beff297f1b91e48d1",
+    "can-compile": "ccummings/can-compile#9080e532fa863754bc3d9935fbe8be164876b7b1",
+    "semver": "^4.3.3",
     "through": "~2.3.4",
     "xtend": "~3.0.0"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^2.2.4",
+    "through": "^2.3.7"
   }
 }
