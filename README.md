@@ -97,6 +97,6 @@ b.bundle().pipe(fs.createWriteStream("./app.bundle.js"));
 
 ## Changelog
 
-__0.0.1:__
+__0.1.0:__
 
 - Initial release
