@@ -97,6 +97,10 @@ b.bundle().pipe(fs.createWriteStream("./app.bundle.js"));
 
 ## Changelog
 
+__0.1.1:__
+
+- Upgrading can-compile to 0.9.0
+
 __0.1.0:__
 
 - Initial release
