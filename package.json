@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/ccummings/can-compilify"
   },
+  "scripts": {
+    "test": "mocha test"
+  },
   "keywords": [
     "canjs",
     "ejs",
@@ -19,7 +22,7 @@
   "author": "Curtis Cummings",
   "license": "MIT",
   "dependencies": {
-    "can-compile": "ccummings/can-compile#9080e532fa863754bc3d9935fbe8be164876b7b1",
+    "can-compile": "~0.9.0",
     "semver": "^4.3.3",
     "through": "~2.3.4",
     "xtend": "~3.0.0"
